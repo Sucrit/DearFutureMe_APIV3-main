@@ -13,7 +13,6 @@ class ReceivedCapsule extends Model
     protected $fillable = [
         'title',
         'message',
-        'content',
         'receiver_email',
         'scheduled_open_at'
     ];

@@ -21,7 +21,8 @@ class CapsuleResource extends JsonResource
             'message' => $this->message, 
             'content' => $this->content,
             'receiver_email' => $this->receiver_email,
-            'schedule_open_at' => $this->schedule_open_at
+            'schedule_open_at' => $this->schedule_open_at,
+            'images'=> $this->images
         ];
     }
 }

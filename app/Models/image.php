@@ -13,6 +13,10 @@ class Image extends Model // Ensure the class name is singular and capitalized
         'capsule_id',    // For polymorphic relation
         'capsule_type'   // For polymorphic relation
     ];
+    protected $hidden = [
+        "created_at",
+        "updated_at"
+    ] ;
 
     public function capsule()
     {

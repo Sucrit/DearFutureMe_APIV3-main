@@ -22,6 +22,9 @@ Route::post('/send', [CapsuleController::class, 'send']);
 Route::post('store', [CapsuleController::class,'store']);
 Route::get('/', [CapsuleController::class, 'index']);
 Route::delete('/{id}', [CapsuleController::class, 'destroy']);
+Route::put('/capsules/{capsule}', [CapsuleController::class, 'update']);
+
+
 
 Route::apiResource('capsules', CapsuleController::class);
 Route::apiResource('receivedcapsules', ReceivedCapsuleController::class);
