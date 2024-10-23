@@ -22,61 +22,7 @@ class CapsuleController extends Controller implements HasMiddleware
             new Middleware('auth:sanctum')
         ];
     }
-    public function send(Request $request) {
-        // Validate incoming request data
-        $validatedData = $request->validate([
-            'title' => 'required|max:50|string',
-            'message' => 'required|max:500|string',
-            'receiver_email' => 'required|email', // Make receiver_email required
-            'scheduled_open_at' => 'required',
-            'images' => 'nullable|array', // Expect an array of images
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate each image
-        ]);
     
-        // Check if the user is authenticated
-        if (!$request->user()) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-    
-        // Check if receiver exists in users table
-        $receiver = User::where('email', $validatedData['receiver_email'])->first();
-        if (!$receiver) {
-            return response()->json(['message' => 'Receiver not found.'], 404);
-        }
-    
-        // Create the capsule for the authenticated user
-        $createdCapsule = $request->user()->receivedCapsule()->create(array_merge($validatedData, ['user_id' => $receiver->id]));
-    
-        // Handle image uploads if images are provided
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $imageFile) {
-                if ($imageFile->isValid()) {
-                    // Store the image and get the path
-                    $imagePath = $imageFile->store('images', 'public');
-    
-                    // Create a new image record and associate it with the capsule
-                    $image = new Image([
-                        'image' => $imagePath,
-                        'capsule_id' => $createdCapsule->id,
-                        'capsule_type' => 'App\\Models\\ReceivedCapsule' // Directly specify the capsule class
-                    ]);
-    
-                    // Save the image using the morphMany relationship
-                    $createdCapsule->images()->save($image);
-                }
-            }
-        }
-    
-        // Send email to the receiver
-        return response()->json([
-            'data' => $createdCapsule,
-            'message' => 'Capsule sent Successfully'
-        ]);
-    }
-    
-
     public function index() {
 
         //check authenticated user
@@ -119,14 +65,12 @@ class CapsuleController extends Controller implements HasMiddleware
 
             return response()->json([
                 'message' => 'You do not own this capsule',
-                'erroe'=> $capsule->receiver_email,
             ], 404);
         }
 
         return response()->json([
             'Info' => $capsule,
             'images' => $capsule->images 
-
         ], 200);
     }
 
@@ -164,7 +108,6 @@ class CapsuleController extends Controller implements HasMiddleware
                 return response()->json(['message' => 'Receiver not found.'], 404);
             }
         }
-        
         // $capsule = new Capsule();
         // $capsule->receiver_email = $request->input('receiver_email');
         // Create the capsule for the authenticated user
@@ -210,9 +153,7 @@ class CapsuleController extends Controller implements HasMiddleware
                 'scheduled_open_at' => $capsule->scheduled_open_at,
                 'user_id' => $capsule->user_id,
                 'id' => $capsule->id,
-                'images' => $capsule->images, // Include images directly in the capsule info
-                'created_at' => $capsule->created_at,
-                'updated_at' => $capsule->updated_at,
+                'images' => $capsule->images // Include images directly in the capsule info
             ],
             'draft' => 'Capsule has been moved to draft',
         ], 200);
@@ -220,24 +161,33 @@ class CapsuleController extends Controller implements HasMiddleware
     }
     
     
-        public function update(Request $request, Capsule $capsule) {
+    public function update(Request $request, Capsule $capsule) {
+        
         Gate::authorize('modify', $capsule);
-        Log::info($request->all());
-
+        
+        Log::info('Incoming request data:', $request->all());
+        
+        // Validate the request data (if validation is enabled)
+        try {
+            $validatedData = $request->validate([
+                'title' => 'required|max:50|string',
+                'message' => 'required|max:500|string',
+                'receiver_email' => 'nullable|email',
+                'scheduled_open_at' => 'nullable|date',
+                'images' => 'nullable|array',
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation errors:', $e->errors());
+            return response()->json(['errors' => $e->errors()], 422);
+        }
     
-        // Validate the request data
-        $validatedData = $request->validate([
-            'title' => 'nullable|max:50|string',
-            'message' => 'nullable|max:500|string',
-            'receiver_email' => 'nullable|email',
-            'scheduled_open_at' => 'nullable|date', // Make sure to validate as a date if needed
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        // Log the capsule before updating
+        Log::info('Capsule before update:', $capsule->toArray());
     
-        // Update the capsule with the validated data
-        $capsule->update(array_filter($validatedData)); // Filter out null values
-    
+        // Update the capsule with validated data
+        $capsule->update(array_filter($validatedData));
+        
         // Optionally, reload the capsule to get updated values
         $capsule->refresh();
     
@@ -247,9 +197,8 @@ class CapsuleController extends Controller implements HasMiddleware
             'message' => $capsule->message,
             'receiver_email' => $capsule->receiver_email,
             'scheduled_open_at' => $capsule->scheduled_open_at,
-            'images' => $capsule->images, // If images are stored in the database
+            'images' => $capsule->images,
             'messageResponse' => 'Updated Successfully'
         ], 200);
     }
-    
-}
+}     

@@ -9,8 +9,9 @@ class ReceivedCapsule extends Model
 {
     use HasFactory;
 
-    protected $table = 'receivedcapsules';
+    protected $table = 'receivedcapsules'; // Specify the correct table name
     protected $fillable = [
+        'user_id',
         'title',
         'message',
         'receiver_email',

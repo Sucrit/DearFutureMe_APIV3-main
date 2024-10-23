@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('receivedCapsules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')
-                  ->constrained()
+                  ->constrained('users')
                   ->cascadeOnDelete();
             $table->string('title');
             $table->string('message');

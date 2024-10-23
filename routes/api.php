@@ -18,11 +18,16 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/view/{id}', [CapsuleController::class, 'view']);
-Route::post('/send', [CapsuleController::class, 'send']);
+Route::post('/send', [ReceivedCapsuleController::class, 'send']);
 Route::post('store', [CapsuleController::class,'store']);
 Route::get('/', [CapsuleController::class, 'index']);
 Route::delete('/{id}', [CapsuleController::class, 'destroy']);
-Route::put('/capsules/{capsule}', [CapsuleController::class, 'update']);
+
+Route::middleware('api')->group(function () {
+    
+    // Route::put('/capsules/{id}', [CapsuleController::class, 'update']);
+});
+
 
 
 
