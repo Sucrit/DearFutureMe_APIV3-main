@@ -64,7 +64,7 @@ class ReceivedCapsuleController implements HasMiddleware
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+        
         // Check if the user is authenticated
         if (!$request->user()) {
             return response()->json(['message' => 'Unauthorized'], 401);

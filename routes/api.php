@@ -4,6 +4,7 @@ use App\Models\ReceivedCapsule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\CapsuleController;
 use App\Http\Controllers\Api\ReceivedCapsuleController;
 
@@ -23,13 +24,13 @@ Route::post('store', [CapsuleController::class,'store']);
 Route::get('/', [CapsuleController::class, 'index']);
 Route::delete('/{id}', [CapsuleController::class, 'destroy']);
 
+// Route for adding images to a specific capsule
+Route::post('/capsules/{capsule}/images', [ImageController::class, 'store']);
+Route::delete('/images/{imageId}', [ImageController::class, 'destroy']);
+
 Route::middleware('api')->group(function () {
-    
     // Route::put('/capsules/{id}', [CapsuleController::class, 'update']);
 });
-
-
-
-
+Route::apiResource('images', ImageController::class);
 Route::apiResource('capsules', CapsuleController::class);
 Route::apiResource('receivedcapsules', ReceivedCapsuleController::class);

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ReceivedCapsuleResource extends JsonResource
+class ImageResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,12 +14,10 @@ class ReceivedCapsuleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // return parent::toArray($request);
         return [
-            'title' => $this->title, 
-            'message' => $this->message, 
-            'receiver_email' => $this->receiver_email,
-            'scheduled_open_at' => $this->scheduled_open_at,
-            'images'=> $this->images
+            'capsule_id' => $this->capsule_id,
+            'capsule_type' => $this->capsule_type,
         ];
     }
 }

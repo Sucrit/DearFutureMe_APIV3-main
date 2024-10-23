@@ -162,7 +162,9 @@ class CapsuleController extends Controller implements HasMiddleware
     
     
     public function update(Request $request, Capsule $capsule) {
-        
+        // Log the ID of the capsule being updated
+        Log::info('Looking for Capsule ID:', ['id' => $capsule->id]);
+    
         Gate::authorize('modify', $capsule);
         
         Log::info('Incoming request data:', $request->all());
@@ -184,13 +186,13 @@ class CapsuleController extends Controller implements HasMiddleware
     
         // Log the capsule before updating
         Log::info('Capsule before update:', $capsule->toArray());
-    
+        
         // Update the capsule with validated data
         $capsule->update(array_filter($validatedData));
         
         // Optionally, reload the capsule to get updated values
         $capsule->refresh();
-    
+        
         return response()->json([
             'id' => $capsule->id,
             'title' => $capsule->title,
@@ -201,4 +203,4 @@ class CapsuleController extends Controller implements HasMiddleware
             'messageResponse' => 'Updated Successfully'
         ], 200);
     }
-}     
+}        
